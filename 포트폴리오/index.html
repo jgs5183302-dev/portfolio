@@ -1,0 +1,1797 @@
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio</title>
+  <!-- 우아한 영문 필기체/세리프 폰트 로드 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600;1,700&family=Alex+Brush&display=swap" rel="stylesheet">
+
+  <style>
+
+    :root {
+      --bg-color: #4b5869;
+      --card-bg: rgba(255, 255, 255, 0.12);
+      --box-placeholder: #82868b;
+      --nav-glass: rgba(255, 255, 255, 0.22);
+      --text-white: #ffffff;
+    }
+
+    * {margin: 0; padding: 0; box-sizing: border-box;
+        scroll-behavior: smooth;}
+
+
+    body {
+      font-family: 'Playfair Display', serif;
+      background-color: var(--bg-color);
+      color: var(--text-white);
+      overflow-x: hidden;
+     
+    }
+
+    /* 1페이지 단위 세로 스크롤 스냅 컨테이너 */
+    .snap-container {
+  width: 100vw;
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory; /* 확실하게 한 페이지 단위로 물림 */
+ 
+  scrollbar-width: none;
+}
+.snap-container::-webkit-scrollbar {
+  display: none;
+}
+
+.section {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  scroll-snap-align: start; /* 페이지 상단에 정확히 자석처럼 안착 */
+  overflow: hidden;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  display: flex;
+}
+
+    /* 공통 별 장식 */
+    .star {
+        position: absolute;
+        top: -20%;
+        width:1920px;         /* 기본 별 크기 */
+        height: 950px;
+        user-select: none;
+        pointer-events: none;
+        z-index: 10;          /* 배경 요소 위로 올라오도록 설정 */
+         /* 투명도 조절이 필요할 경우 */
+}
+
+    /* 공통 네비게이션 바 (글래스모피즘 알약 스타일) */
+    .nav-bar {
+      position: fixed;
+      top: 30px;
+      left: 50px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      padding: 10px 28px;
+      background: var(--nav-glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 30px 0;
+      
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .nav-bar a {
+  font-weight: 300 !important;
+  opacity: 0.5 !important;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+  position: relative;
+}
+/* 사운드 토글 버튼 스타일 */
+.bgm-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.25s ease;
+  margin-left: 10px;
+}
+
+.bgm-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.bgm-btn.active {
+  background: #ffffff;
+  color: #111111;
+  border-color: #ffffff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+}
+
+/* 마우스 올렸을 때 살짝 밝아짐 */
+.nav-bar a:hover {
+  opacity: 0.8 !important;
+}
+
+/* [핵심] 현재 페이지만 확실하게 볼드 + 완전 불투명 */
+.nav-bar a.active {
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+}
+    .nav-dot {
+      width: 6px;
+      height: 6px;
+      background-color: #fff;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* ===================================================
+       SECTION 1 : 홈 (대형 Portfolio 타이틀 + 무한 슬라이더)
+       =================================================== */
+    #home {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 배경 인물 이미지 또는 비디오 */
+    .fixed-hero-bg-wrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 0;           /* 모든 섹션 콘텐츠보다 뒤로 배치 */
+  pointer-events: none; /* 스크롤이나 클릭 이벤트를 방해하지 않음 */
+}
+#fixedPersonImg {
+  width: 1920px;         /* 원본 비율에 맞게 크기 조절 */
+  height: auto;
+  opacity: 1;
+  filter: blur(0px);    /* 초기 상태: 선명 */
+  transition: filter 0.5s ease; /* 블러 전환 애니메이션 */
+  
+  /* 가장자리 은은하게 퍼지는 마스크 효과 (선택사항) */
+  mask-image: radial-gradient(circle, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 80%);
+  -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 80%);
+}
+
+/* 블러가 적용될 클래스 (스크롤이 내려갔을 때 JS가 붙여줌) */
+#fixedPersonImg.blurred {
+  filter: blur(25px);   /* 2, 3번째 시안처럼 흐려지는 강도 */
+}
+#fixedStarsImg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;               /* 화면 비율에 맞게 전체 채움 */
+  opacity: 0;                      /* 1페이지에서는 숨김 */
+  transition: opacity 0.6s ease;   /* 블러와 동일한 속도로 페이드인 */
+  z-index: 1;                      /* 사람 이미지 위로 얹어짐 */
+}
+
+/* 2페이지 진입 시 나타남 */
+#fixedStarsImg.active {
+  opacity: 1;
+}
+
+/* 각 섹션 배경을 투명하게 두어야 고정된 사람 이미지가 비칩니다 */
+.section {
+  background: transparent !important;
+  position: relative;
+  z-index: 1; /* 배경(z-index: 0)보다 위로 올라오도록 설정 */
+}
+    .hero-title-img {
+        position: relative;
+        top: -10%;
+        z-index: 2;
+        width: 1920px;         /* 화면 너비에 맞게 크기 조절 (필요시 70~80vw 사이로 조절) */
+        max-width: 1900px;
+        height: 950px;
+        pointer-events: none;
+        user-select: none;
+}
+
+    .hero-title {
+      position: relative;
+      z-index: 2;
+      font-size: 14vw;
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: -2px;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      margin-top: -40px;
+    }
+
+    /* 하단 무한 롤링 슬라이더 */
+    .fly-card {
+  position: fixed;
+  z-index: 99999;
+  background: rgba(45, 52, 63, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: none;
+  overflow: hidden;
+  box-sizing: border-box;
+  opacity: 0;
+  /* 부드러운 감속 가속 곡선 */
+  transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 카드 내부 콘텐츠 */
+.slider-container {
+  position: absolute;
+  bottom: 45px;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  z-index: 3;
+}
+
+.slider-track {
+  display: inline-flex;
+  gap: 24px;
+  animation: infiniteScroll 25s linear infinite;
+}
+
+.slider-track:hover {
+  animation-play-state: paused;
+}
+
+/* 슬라이드 개별 박스 (원하는 크기로 자유롭게 조절 가능) */
+.slider-item {
+  width: 280px;            /* 가로 크기 축소 (기존 420px -> 280px) */
+  height: 170px;           /* 세로 크기 축소 (기존 250px -> 170px) */
+  background-color: var(--box-placeholder, #82868b);
+  border-radius: 12px;
+  flex-shrink: 0;
+  overflow: hidden;        /* 이미지가 박스 밖으로 삐져나가지 못하게 차단 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+
+.slider-item:hover {
+  transform: translateY(-5px);
+}
+
+/* [핵심] 이미지가 박스 크기에 맞춰 완벽히 축소되도록 강제하는 규칙 */
+.slider-item img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block;
+  pointer-events: none;    /* 드래그 방지 */
+  user-select: none;
+}
+
+@keyframes infiniteScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+
+/* ===================================================
+   중앙 확장 팝업 (슬라이더와 완전히 별개인 독립 레이어)
+   =================================================== */
+.fly-card {
+  position: fixed;
+  z-index: 99999;
+  background: rgba(45, 52, 63, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: none;
+  overflow: hidden;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fly-card-content {
+  width: 100%;
+  height: 100%;
+  padding: 35px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.25s ease 0.15s;
+}
+
+.fly-card.expanded .fly-card-content {
+  opacity: 1;
+}
+
+.fly-card-content h3 {
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+  font-style: italic;
+  color: #fff;
+}
+
+.fly-card-content p {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 25px;
+}
+
+.fly-btn-group {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.fly-action-btn {
+  flex: 1;
+  padding: 12px 0;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.fly-action-btn:hover {
+  background: #fff;
+  color: #111;
+  transform: translateY(-2px);
+}
+
+.fly-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 18px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 26px;
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.fly-close-btn:hover {
+  opacity: 1;
+}
+
+/* ==================================================
+   전체 화면 뷰어 레이어 (HTML 및 스크립트 연결 수정)
+   ================================================== */
+   .full-viewer,
+.full-viewer-layer,
+#fullViewer {
+  display: none;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(10, 12, 16, 0.96) !important;
+  backdrop-filter: blur(8px);
+  z-index: 100000 !important; /* 모든 요소보다 위에 오도록 설정 */
+  align-items: center;
+  justify-content: center;
+}
+
+.close-viewer-btn,
+.full-viewer-close,
+#closeViewerBtn {
+  position: absolute;
+  top: 25px;
+  right: 35px;
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 40px;
+  cursor: pointer;
+  z-index: 100001;
+  transition: transform 0.2s ease;
+}
+
+.close-viewer-btn:hover,
+.full-viewer-close:hover {
+  transform: scale(1.15);
+}
+
+.viewer-box,
+.full-viewer-box,
+#viewerBox {
+  width: 90vw;
+  height: 86vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.viewer-box iframe,
+.full-viewer-box iframe,
+#viewerBox iframe,
+.viewer-box object,
+#viewerBox object {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.viewer-box video,
+.full-viewer-box video,
+#viewerBox video {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 12px;
+  outline: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+}
+
+/* ==================================================
+   하단 슬라이더 (기존 유지)
+   ================================================== */
+.slider-container {
+  position: absolute;
+  bottom: 45px;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  z-index: 3;
+}
+
+.slider-track {
+  display: inline-flex;
+  gap: 32px;
+  animation: infiniteScroll 25s linear infinite;
+}
+
+.slider-track:hover {
+  animation-play-state: paused; /* 마우스 호버 시 일시정지 */
+}
+
+.slider-item {
+  width: 420px;
+  height: 250px;
+  background-color: var(--box-placeholder);
+  border-radius: 12px;
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.slider-item img,
+.slider-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@keyframes infiniteScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+    /* ===================================================
+       SECTION 2 : 포트폴리오 상세 (리스트 + 중앙 메인 뷰)
+       =================================================== */
+       /* 2페이지 섹션 중앙 배치 */
+       #portfolio {
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start !important; /* 👈 center에서 flex-start로 변경하여 요소들을 위로 밀착 */
+  align-items: center;
+  box-sizing: border-box;
+  padding: 80px 20px 20px; /* 상단 메뉴바 피하기 위한 위쪽 패딩 */
+  scroll-snap-align: start;
+}
+
+/* 상단 Portfolio 타이틀 이미지 위치 */
+#port {
+  width: auto;
+  height: clamp(120px, 20vh, 220px) !important;
+  max-height: none !important;
+  margin-top: 30px !important;
+  margin-bottom: 0 !important; /* 👈 하단 여백 완전 0 */
+  padding-bottom: 0 !important;
+  display: block;              /* 👈 인라인 기본 바닥 여백 제거 */
+  object-fit: contain;
+  flex-shrink: 0 !important;
+  user-select: none;
+  pointer-events: none;
+}
+/* 좌측 리스트 + 우측 쇼케이스 가로 정렬 래퍼 */
+.portfolio-content-wrap {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 24px;
+  width: 90%;
+  max-width: 1100px;
+  max-height: calc(100vh - 130px); /* 👈 타이틀이 커진 만큼 상한선 미세 조정 */
+  box-sizing: border-box;
+}
+
+/* 좌측 리스트 카드 */
+.list-card {
+  width: 280px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 24px 18px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.list-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+}
+
+.list-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.nav-arrow.disabled {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+/* 리스트 개별 항목 */
+.project-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.project-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.project-item.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.item-title {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 8px;
+}
+
+.project-item.active .item-title {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* 스토리보드 버튼 */
+.btn-storyboard {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.btn-storyboard:hover {
+  background: #ffffff;
+  color: #000;
+  transform: translateY(-1px);
+}
+
+/* 우측 쇼케이스 글래스모피즘 메인 카드 */
+.showcase-card {
+  flex-grow: 1;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 14px 20px;         /* 상하 패딩을 슬림화 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+/* 상단 비디오 + 화살표 래퍼 */
+.showcase-media-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 90%;
+}
+
+/* 비디오 뷰 박스 */
+.main-view-box {
+  position: relative;
+  width: 100%;
+  max-width: 550px;            /* 500px -> 440px로 조율하여 상단 글씨 공간 확보 */
+  aspect-ratio: 16 / 9;
+  background-color: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+.main-view-box video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 하단 메타 정보 (툴 + 설명) 컨테이너 */
+.showcase-meta-info {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 550px;
+}
+/* 사용 툴 뱃지 스타일 */
+.project-tools-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tool-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;                           /* 로고와 글자 사이 간격 */
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e0e0e0;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  line-height: 1;
+}
+.tool-icon {
+  width: 14px;                        /* 글자 높이와 동일한 크기 */
+  height: 14px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* 캡션 텍스트 줄바꿈 및 크기 조절 */
+.work-caption {
+  color: #cfd4dc;
+  font-size: 1rem;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.nav-arrow {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 26px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.2s ease, background 0.2s ease;
+  flex-shrink: 0;
+  opacity: 1;
+  visibility: visible;
+}
+
+.nav-arrow:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.08);
+}
+
+/* 첫 영상일 때 숨김 처리 */
+.nav-arrow.disabled {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+.expand-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+      cursor: pointer;          /* 마우스 손가락 모양 표시 */
+      pointer-events: auto;     /* 👈 [핵심 수정] 클릭 이벤트를 정상 수신하도록 허용 */
+      z-index: 10;
+}
+.expand-btn:hover {
+      background: rgba(0, 0, 0, 0.85);
+      transform: scale(1.1);
+    }
+.main-view-box:hover .expand-btn {
+  opacity: 1;
+}
+
+.work-caption {
+  margin: 0;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+/* 1) 크고 굵게 강조할 제목/프로젝트명 */
+.caption-title {
+  display: block;          /* 줄바꿈 처리 (한 줄로 이으려면 inline-block) */
+  font-size: 1.5rem;      /* 👈 큰 글자 크기 (원하는 대로 조절) */
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 10px;      /* 설명글과의 간격 */
+}
+
+/* 2) 작고 은은한 본문 상세 설명 */
+.caption-desc {
+  display: block;
+  font-size: 0.82rem;      /* 👈 작은 글자 크기 */
+  font-weight: 400;
+  color: #cfd4dc;
+  line-height: 1.45;
+}
+
+    /* ===================================================
+       SECTION 3 : 프로필 & 연락처 (반투명 카드 2개)
+       =================================================== */
+       #profile {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .profile-expanded-wrap {
+      position: relative;
+      width: 90vw;
+      max-width: 1200px;
+      z-index: 2;
+      margin-top: 20px;
+    }
+
+    .profile-title-img {
+      position: absolute;
+      top: -85px;
+      left: 20px;
+      width: clamp(200px, 22vw, 320px);
+      height: auto;
+      pointer-events: none;
+      user-select: none;
+      z-index: 5;
+    }
+
+    .profile-main-card {
+      width: 100%;
+      height: clamp(480px, 60vh, 580px); /* 넉넉하게 확장된 카드 높이 */
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 28px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+      padding: 45px 50px;
+      display: flex;
+      align-items: center;
+      gap: 50px;
+      box-sizing: border-box;
+    }
+
+    .profile-photo-box {
+      width: 32%;
+      max-width: 300px;
+      height: 100%;
+      background-color: var(--box-placeholder, #82868b);
+      border-radius: 20px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .profile-photo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .profile-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      color: #ffffff;
+      padding: 10px 0;
+    }
+
+    .profile-header-text h2 {
+      font-size: 2.2rem;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .profile-header-text .role-sub {
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-style: italic;
+    }
+
+    .profile-desc {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 15px 0;
+    }
+
+    .profile-info-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 25px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      padding-top: 20px;
+    }
+
+    .info-block h4 {
+      font-size: 0.85rem;
+      letter-spacing: 1.5px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .info-block ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .skill-tags span {
+  display: inline-flex;        /* 아이콘과 텍스트 나란히 배치 */
+  align-items: center;         /* 세로 중앙 정렬 */
+  gap: 6px;                    /* 이미지와 글자 사이 간격 */
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 1.0rem;
+  color: #ffffff;
+  line-height: 1;
+}
+
+/* 👈 추가할 이미지 크기 조절 선택자 */
+.skill-tags img {
+  width: 16px;                 /* 글자 높이에 맞춘 너비 (14~16px 권장) */
+  height: 16px;                /* 높이 */
+  object-fit: contain;         /* 비율 유지 */
+  display: block;
+  flex-shrink: 0;              /* 찌그러짐 방지 */
+}
+    /* ===================================================
+       SECTION 4 : 푸터형 연락처 (FOOTER / CONTACT)
+       =================================================== */
+    #contact {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .footer-page-wrap {
+      position: relative;
+      width: 90vw;
+      max-width: 1000px;
+      z-index: 2;
+    }
+
+    .contact-title-img {
+      position: absolute;
+      top: -75px;
+      left: 30px;
+      width: clamp(200px, 22vw, 300px);
+      height: auto;
+      pointer-events: none;
+      user-select: none;
+      z-index: 5;
+    }
+
+    .footer-card {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 24px;
+      padding: 50px 40px 30px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-sizing: border-box;
+    }
+
+    .footer-greeting {
+      font-size: 1.15rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .footer-contacts {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 50px;
+      width: 100%;
+      margin-bottom: 45px;
+      flex-wrap: wrap;
+    }
+
+    .contact-row {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    .contact-row:hover {
+      transform: translateY(-4px);
+      opacity: 0.85;
+    }
+
+    .footer-contact-img {
+      height: auto;
+      pointer-events: auto;
+    }
+
+    #mail { width: clamp(200px, 18vw, 260px); }
+    #insta { width: clamp(170px, 16vw, 220px); }
+    #tel { width: clamp(160px, 15vw, 210px); }
+
+    .footer-bottom-line {
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding-top: 25px;
+      text-align: center;
+    }
+
+    .footer-bottom-line p {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.4);
+      letter-spacing: 1px;
+    }
+
+/* --------------------------------------------------
+   3. 세로 화면 높이 축소 반응형
+   -------------------------------------------------- */
+@media (max-height: 650px) {
+  /* 세로 창이 너무 좁아지면 타이틀 이미지가 상단에 걸리지 않도록 자연스럽게 숨김 */
+  .profile-title-img,
+  .info-title-img {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+}
+  </style>
+</head>
+<body>
+  <audio id="bgMusicPlayer" src="배경음악.mp3" loop preload="auto"></audio>
+
+  <div class="fixed-hero-bg-wrap">
+    <video id="fixedPersonImg" autoplay muted loop playsinline>
+      <source src="포폴수정수정.mp4" type="video/mp4" />
+      동영상을 지원하지 않는 브라우저입니다.
+    </video>
+    <img src="별2-3.png" id="fixedStarsImg" alt="Stars Background" />
+  </div>
+
+  <!-- 상단 고정 네비게이션 -->
+  <nav class="nav-bar">
+    <a href="#home">Home</a>
+    <span class="nav-dot"></span>
+    <a href="#portfolio">Portfolio</a>
+    <span class="nav-dot"></span>
+    <a href="#profile">Profile</a>
+    <span class="nav-dot"></span>
+    <a href="#contact">Contact</a>
+    <button type="button" id="bgmToggleBtn" class="bgm-btn" aria-label="배경음악 켜기/끄기">
+      <!-- 음소거 상태 아이콘 (기본) -->
+      <span class="icon-muted">🔇 BGM OFF</span>
+      <!-- 재생 상태 아이콘 -->
+      <span class="icon-playing" style="display: none;">🔊 BGM ON</span>
+    </button>
+  </nav>
+
+  <div class="snap-container" id="snapContainer">
+
+    <!-- 1. HOME SECTION -->
+    <section class="section" id="home">
+      <!-- 배경 별 데코레이션 -->
+      <img src="별(첫).png" class="star" alt="star" />
+
+      <!-- 타이틀 이미지 -->
+      <img src="포폴글씨(대).png" class="hero-title-img" alt="Portfolio" />
+
+      <!-- 하단 자동 무한 롤링 슬라이더 -->
+      <div class="slider-container">
+        <div class="slider-track">
+          <!-- 원본 슬라이드 아이템 -->
+          <div class="slider-item" data-title="에뛰드 하우스 리브랜딩 광고 영상" data-pdf="에뛰드하우스기획서.pdf" data-video="에뛰드하우스_수정본.mp4">
+            <img src="에뛰드.png" alt="Project 01 썸네일" />
+          </div>
+          <div class="slider-item" data-title="아이엠스타 예고편" data-pdf="아이엠스타_스토리보드(수정) .pdf" data-video="아이엠스타.mp4">
+            <img src="아이엠스타.png" alt="Project 02 썸네일" />
+          </div>
+          <div class="slider-item"></div>
+          <div class="slider-item"></div>
+
+          <!-- 무한 루프 연결을 위한 복제 아이템 -->
+          <div class="slider-item" data-title="에뛰드 하우스 리브랜딩 광고 영상" data-pdf="에뛰드하우스기획서.pdf" data-video="에뛰드하우스_수정본.mp4">
+            <img src="에뛰드.png" alt="Project 01 썸네일" />
+          </div>
+          <div class="slider-item" data-title="아이엠스타 예고편" data-pdf="아이엠스타_스토리보드(수정) .pdf" data-video="아이엠스타.mp4">
+            <img src="아이엠스타.png" alt="Project 02 썸네일" />
+          </div>
+          <div class="slider-item"></div>
+          <div class="slider-item"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. PORTFOLIO SECTION -->
+    <section id="portfolio" class="section">
+      <!-- 상단 Portfolio 타이틀 이미지 -->
+      <img src="포폴글씨수정.png" id="port" alt="portfolio" />
+
+      <!-- 좌측 리스트 + 우측 쇼케이스를 묶어주는 메인 래퍼 -->
+      <div class="portfolio-content-wrap">
+
+        <!-- 좌측 리스트 카드 -->
+        <div class="list-card">
+          <div class="list-title">List</div>
+          <ul class="list-items" id="projectList">
+            <!-- 1번 프로젝트 -->
+            <li class="project-item active" data-index="0">
+              <span class="item-title">1. 에뛰드 하우스 리브랜딩</span>
+              <button type="button" class="btn-storyboard" data-storyboard="에뛰드하우스기획서.pdf">스토리보드</button>
+            </li>
+            
+            <!-- 2번 프로젝트 -->
+            <li class="project-item" data-index="1">
+              <span class="item-title">2. 아이엠스타 예고편</span>
+              <button type="button" class="btn-storyboard" data-storyboard="스토리보드(수정).pdf">스토리보드</button>
+            </li>
+            
+            <!-- 3번 프로젝트 (준비중) -->
+            <li class="project-item" data-index="2">
+              <span class="item-title">3. Project 03</span>
+              <button type="button" class="btn-storyboard" data-storyboard="">스토리보드</button>
+            </li>
+            
+            <!-- 4번 프로젝트 (준비중) -->
+            <li class="project-item" data-index="3">
+              <span class="item-title">4. Project 04</span>
+              <button type="button" class="btn-storyboard" data-storyboard="">스토리보드</button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 우측 메인 쇼케이스 -->
+       <!-- 우측 메인 쇼케이스 (글래스모피즘 대형 카드 적용) -->
+      <div class="showcase-card">
+        
+        <!-- 상단 영상 & 좌우 이동 화살표 행 -->
+        <div class="showcase-media-row">
+          <button class="nav-arrow" type="button" id="prevWorkBtn" aria-label="이전 영상">&lang;</button>
+          
+          <!-- 메인 뷰 박스: 클릭 시 전체화면 확대 지원 -->
+          <div class="main-view-box" id="mainViewTrigger" title="클릭하여 전체화면으로 보기">
+            <video id="portfolioMainVideo" autoplay muted loop playsinline>
+              <source src="에뛰드하우스_수정본.mp4" type="video/mp4" />
+              동영상을 지원하지 않는 브라우저입니다.
+            </video>
+
+            <!-- 우측 상단 확대 아이콘 버튼 -->
+            <button class="expand-btn" type="button" aria-label="전체화면 확대">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+              </svg>
+            </button>
+          </div>
+          
+          <button class="nav-arrow" type="button" id="nextWorkBtn" aria-label="다음 영상">&rang;</button>
+        </div>
+        
+        <!-- 하단 메타 정보 영역 (사용 툴 태그 + 상세 캡션 설명) -->
+        <div class="showcase-meta-info">
+          <!-- 사용 툴 뱃지/태그 목록 -->
+          <div class="project-tools-wrap" id="projectToolsWrap">
+            <span class="tool-tag"><img src="포토샵.png" class="tool-icon" alt="Photoshop">Photoshop</span>
+            <span class="tool-tag"><img src="프리미어.png" class="tool-icon" alt="Premiere Pro">Premiere Pro</span>
+            <span class="tool-tag"><img src="플로우.png" class="tool-icon" alt="Google Flow">Google Flow</span>
+            <span class="tool-tag"><img src="힉필.jpg" class="tool-icon" alt="Higgsfield">Higgsfield</span>
+            <span class="tool-tag"><img src="제미나이.jpg" class="tool-icon" alt="Gemini">Gemini</span>
+          </div>
+
+          <!-- 하단 비디오 상세 설명 캡션 -->
+          <div class="work-caption" id="workCaptionText">
+            <h2>1. 에뛰드 하우스 리브랜딩</h2><br>
+            <h5>무난해진 모던 트렌드 속에서 과거 에뛰드만의 찬란했던 '프린세스 무드'를 그리워하는 고객들의 목소리에 응답하는 가상 리브랜딩 브랜드 필름입니다. 생성형 AI 파이프라인으로 클래식한 핑크 판타지 비주얼 소스를 구축하고, 잊고 지낸 고객(공주님)들을 다시 맞이하는 에뛰드의 귀환을 위트 있고 감각적인 영상미로 완성했습니다.</h5>
+          </div>
+        </div>
+
+      </div>
+        </div>
+
+      
+    </section>
+
+    <!-- 3. PROFILE SECTION -->
+    <section id="profile" class="section">
+      <div class="profile-expanded-wrap">
+        <img src="프로필 글자.png" class="profile-title-img" alt="Profile" />
+        
+        <div class="profile-main-card">
+          <!-- 우측 확장된 소개 및 상세 영역 -->
+          <div class="profile-details">
+            <div class="profile-header-text">
+              <h2>JEONG GA SONG</h2>
+              <p class="role-sub">Creative Director / Visual Content Marketer<br>
+                Brand Video Director & AI Creative Strategist</p>
+            </div>
+            
+            <p class="profile-desc">
+              브랜드의 고유한 감각과 이야기를 영상과 디자인으로 시각화합니다.<br/><br/>
+              데이터와 시장의 흐름을 읽고, 이를 가장 매력적인 영상 언어로 설계하는 크리에이티브 디렉터 정가송입니다.<br/>
+              브랜드 리브랜딩, 타깃 맞춤형 티저 기획 등 마케팅 목표에 부합하는 콘셉트 도출과 메시지 구조화에 강점이 있습니다. 생성형 AI를 워크플로우에 적극 도입하여 초기 가설 검증과 비주얼 프로토타이핑을 빠르게 실행하고, 기획부터 스토리보드, 최종 프로덕션 퀄리티 컨트롤까지 전반적인 크리에이티브를 총괄합니다.
+            </p>
+
+            <div class="profile-info-grid">
+              <div class="info-block">
+                <h4>EDUCATION & EXPERIENCE</h4>
+                <ul>
+                  <li>미디어기술컨텐츠 전공</li>
+                  <li>AI 툴 및 멀티모달 파이프라인을 활용한 하이브리드 에셋 프로덕션</li>
+                  <li>애니메이션/IP 티저 프로모션 모션 그래픽 제작</li>
+                  <li>브랜드 광고 영상 리브랜딩 및 비주얼 연출</li>
+                </ul>
+              </div>
+              <div class="info-block">
+                <h4>SKILLS & TOOLS</h4>
+                <div class="skill-tags">
+                  <span><img src="에펙.png">After Effects</span>
+                  <span><img src="프리미어.png">Premiere Pro</span>
+                  <span><img src="포토샵.png">Photoshop</span>
+                  <span><img src="피그마.png">Figma</span>
+                  <span><img src="마야.png">Maya / 3D</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. FOOTER / CONTACT SECTION -->
+    <section id="contact" class="section">
+      <div class="footer-page-wrap">
+        <img src="인포글자.png" class="contact-title-img" alt="Information" />
+        
+        <div class="footer-card">
+          <p class="footer-greeting">새로운 프로젝트와 협업 제안은 언제나 환영합니다.</p>
+          
+          <div class="footer-contacts">
+            <a href="mailto:geonggasong518@gamil.com" class="contact-row">
+              <img src="메일.png" id="mail" class="footer-contact-img" alt="Mail" />
+            </a>
+            <a href="https://instagram.com/ga_x.lo" target="_blank" class="contact-row">
+              <img src="인스타.png" id="insta" class="footer-contact-img" alt="Instagram" />
+            </a>
+            <div class="contact-row">
+              <img src="전화번호.png" id="tel" class="footer-contact-img" alt="Tel" />
+            </div>
+          </div>
+
+          <div class="footer-bottom-line">
+            <p>© 2026 JEONG GA SONG. All Rights Reserved.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div> <!-- snap-container 닫기 -->
+
+  <!-- [누락되었던 핵심 팝업 모달] 전체화면 비디오 & 스토리보드 뷰어 -->
+  <div id="fullViewer" class="full-viewer" style="display: none;">
+    <button type="button" id="closeViewerBtn" class="close-viewer-btn" aria-label="팝업 닫기">&times;</button>
+    <div id="viewerBox" class="viewer-box"></div>
+  </div>
+
+
+  <script>
+    /* ==================================================
+       1. 전역 DOM 요소 정의
+       ================================================== */
+    const snapContainer = document.querySelector('.snap-container');
+    const sections = document.querySelectorAll('.section');
+    const personImg = document.getElementById('fixedPersonImg');
+    const starsImg = document.getElementById('fixedStarsImg');
+    const navLinks = document.querySelectorAll('.nav-bar a');
+
+    // 전체화면 뷰어 (공용)
+    const fullViewer = document.getElementById('fullViewer');
+    const viewerBox = document.getElementById('viewerBox');
+    const closeViewerBtn = document.getElementById('closeViewerBtn');
+
+    // 2페이지 쇼케이스 관련 요소
+    const showcaseVideo = document.getElementById('portfolioMainVideo');
+    const showcaseCaption = document.getElementById('workCaptionText');
+    const prevBtn = document.getElementById('prevWorkBtn');
+    const nextBtn = document.getElementById('nextWorkBtn');
+    const projectItems = document.querySelectorAll('.project-item');
+    const mainViewTrigger = document.getElementById('mainViewTrigger');
+    const toolIcons = {
+      "Photoshop": "포토샵.png",
+      "Premiere Pro": "프리미어.png",
+      "After Effect": "에펙.png",
+      "Google Flow": "플로우.png",
+      "Higgsfield": "힉필.jpg",
+      "Gemini": "제미나이.jpg",
+      "Viggle AI": "비글.jpg"
+    };
+    // BGM 관련 요소
+    const bgMusic = document.getElementById('bgMusicPlayer');
+    const bgmBtn = document.getElementById('bgmToggleBtn');
+    const iconMuted = bgmBtn ? bgmBtn.querySelector('.icon-muted') : null;
+    const iconPlaying = bgmBtn ? bgmBtn.querySelector('.icon-playing') : null;
+    let userWantsBgm = false; // BGM 마스터 스위치
+
+    let currentIndex = 0;
+    let isThrottled = false;
+    let currentProjectIdx = 0;
+
+    /* ==================================================
+       2. BGM 제어 로직 (2페이지 자동 정지 & 버튼 먹통 방지)
+       ================================================== */
+    function renderBgmButton(isOn) {
+      if (!bgmBtn) return;
+      if (isOn) {
+        bgmBtn.classList.add('active');
+        if (iconMuted) iconMuted.style.display = 'none';
+        if (iconPlaying) iconPlaying.style.display = 'inline';
+      } else {
+        bgmBtn.classList.remove('active');
+        if (iconMuted) iconMuted.style.display = 'inline';
+        if (iconPlaying) iconPlaying.style.display = 'none';
+      }
+    }
+
+    function syncBgmPlayback() {
+      if (!bgMusic) return;
+
+      // 1) 사용자가 끈 상태 -> 무조건 정지
+      if (!userWantsBgm) {
+        bgMusic.pause();
+        renderBgmButton(false);
+        return;
+      }
+
+      // 2) 사용자가 켰으나 현재 2페이지(인덱스 1)에 진입한 경우 -> 영상 소리를 위해 일시정지
+      if (currentIndex === 1) {
+        bgMusic.pause();
+        renderBgmButton(true);
+        return;
+      }
+
+      // 3) 그 외 1, 3, 4페이지 -> 배경음악 재생
+      bgMusic.volume = 0.2;
+      bgMusic.play().then(() => {
+        renderBgmButton(true);
+      }).catch((err) => {
+        console.warn("오디오 재생 대기:", err);
+      });
+    }
+
+    // 상단 사운드 버튼 클릭 시 On/Off 토글
+    if (bgmBtn && bgMusic) {
+      bgmBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userWantsBgm = !userWantsBgm;
+        syncBgmPlayback();
+      });
+    }
+
+    /* ==================================================
+       3. 네비게이션 & 스크롤 & 미디어 통합 제어
+       ================================================== */
+    function updateNav(targetIndex) {
+      navLinks.forEach((link, idx) => {
+        if (idx === targetIndex) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    }
+    updateNav(0);
+
+    // 부드러운 감속 스크롤 함수 (duration: 밀리초 단위)
+    function smoothScrollTo(element, targetPosition, duration = 850) {
+      const startPosition = element.scrollTop;
+      const distance = targetPosition - startPosition;
+      let startTime = null;
+
+      // 부드러운 감속 이징 공식 (Ease-Out-Cubic)
+      function easeOutCubic(t) {
+        return --t * t * t + 1;
+      }
+
+      function animation(currentTime) {
+        if (!startTime) startTime = currentTime;
+        const timeElapsed = currentTime - startTime;
+        const progress = Math.min(timeElapsed / duration, 1);
+        const ease = easeOutCubic(progress);
+
+        element.scrollTop = startPosition + distance * ease;
+
+        if (timeElapsed < duration) {
+          requestAnimationFrame(animation);
+        }
+      }
+
+      requestAnimationFrame(animation);
+    }
+
+    // 변경된 moveToSection 함수
+    function moveToSection(index) {
+      if (index < 0 || index >= sections.length) return;
+      currentIndex = index;
+
+      const targetTop = sections[currentIndex].offsetTop;
+      
+      // 850ms(0.85초) 동안 묵직하고 부드럽게 이동
+      if (snapContainer) {
+        smoothScrollTo(snapContainer, targetTop, 1200);
+      } else {
+        sections[currentIndex].scrollIntoView({ behavior: 'smooth' });
+      }
+
+      updateNav(currentIndex);
+    }
+
+      // 2페이지 쇼케이스 영상 제어
+      if (showcaseVideo) {
+        if (currentIndex === 1) {
+          showcaseVideo.play().catch(() => {});
+        } else {
+          showcaseVideo.pause();
+        }
+      }
+
+      // 페이지 이동 시 BGM 상태 자동 동기화 (2페이지에선 정지, 타 페이지에선 재생)
+      syncBgmPlayback();
+
+      // 1페이지 배경 비디오 및 별 배경 제어
+      if (currentIndex > 0) {
+        if (personImg) {
+          personImg.classList.add('blurred');
+          if (typeof personImg.pause === 'function') personImg.pause();
+        }
+        if (starsImg) starsImg.classList.add('active');
+      } else {
+        if (personImg) {
+          personImg.classList.remove('blurred');
+          if (typeof personImg.play === 'function') personImg.play().catch(() => {});
+        }
+        if (starsImg) starsImg.classList.remove('active');
+      }
+
+      setTimeout(() => {
+        isThrottled = false;
+      }, 550);
+    
+
+    // 상단 네비게이션 클릭 시 섹션 이동
+    navLinks.forEach((link, idx) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        moveToSection(idx);
+      });
+    });
+
+    // 스냅 컨테이너 스크롤 감지 및 실시간 동기화
+    if (snapContainer) {
+      snapContainer.addEventListener('scroll', () => {
+        const centerY = snapContainer.scrollTop + window.innerHeight / 2;
+        let activeIdx = 0;
+
+        sections.forEach((section, idx) => {
+          const top = section.offsetTop;
+          const bottom = top + section.offsetHeight;
+          if (centerY >= top && centerY < bottom) {
+            activeIdx = idx;
+          }
+        });
+
+        if (currentIndex !== activeIdx) {
+          currentIndex = activeIdx;
+          updateNav(activeIdx);
+
+          if (showcaseVideo) {
+            if (currentIndex === 1) {
+              showcaseVideo.play().catch(() => {});
+            } else {
+              showcaseVideo.pause();
+            }
+          }
+
+          syncBgmPlayback();
+        }
+
+        if (currentIndex > 0) {
+          if (personImg) {
+            personImg.classList.add('blurred');
+            if (typeof personImg.pause === 'function') personImg.pause();
+          }
+          if (starsImg) starsImg.classList.add('active');
+        } else {
+          if (personImg) {
+            personImg.classList.remove('blurred');
+            if (typeof personImg.play === 'function') personImg.play().catch(() => {});
+          }
+          if (starsImg) starsImg.classList.remove('active');
+        }
+      });
+    }
+
+    /* ==================================================
+       4. 2페이지 쇼케이스 데이터 & 인터랙션
+       ================================================== */
+    const portfolioData = [
+      {
+        title: "1. 에뛰드 하우스 리브랜딩",
+        captionTitle: "1. 에뛰드 하우스 리브랜딩",
+        captionDesc: "무난해진 모던 트렌드 속에서 과거 에뛰드만의 찬란했던 '프린세스 무드'를 그리워하는 고객들의 목소리에 응답하는 가상 리브랜딩 브랜드 필름입니다. 생성형 AI 파이프라인으로 클래식한 핑크 판타지 비주얼 소스를 구축하고, 잊고 지낸 고객(공주님)들을 다시 맞이하는 에뛰드의 귀환을 위트 있고 감각적인 영상미로 완성했습니다.",
+        video: "에뛰드하우스_수정본.mp4",
+        storyboard: "에뛰드하우스기획서.pdf",
+        tools: ["Photoshop", "Premiere Pro", "Google Flow", "Higgsfield", "Gemini"]
+      },
+      {
+        title: "2. 아이엠스타 예고편",
+        captionTitle: "2. 아이엠스타 예고편",
+        captionDesc: "추억의 IP ‘아이엠스타’의 새로운 극장판 개봉을 가정한 시네마틱 론칭 예고편입니다. 실제 댄스 퍼포먼스에서 모션을 추출한 뒤 캐릭터 비주얼을 매핑하고, AI 프레임 보간 파이프라인을 거쳐 역동적인 라이브 무대 안무를 자연스러운 영상미로 구현했습니다.",
+        video: "아이엠스타.mp4",
+        storyboard: "아이엠스타_스토리보드(수정) .pdf",
+        tools: ["Photoshop", "Premiere Pro", "Google Flow", "Gemini", "After Effect", "Viggle AI"]
+      },
+      {
+        title: "3. Project 03",
+        caption: "Project 03 상세 설명",
+        video: "",
+        storyboard: ""
+      },
+      {
+        title: "4. Project 04",
+        caption: "Project 04 상세 설명",
+        video: "",
+        storyboard: ""
+      }
+    ];
+
+    // 화살표 활성/비활성 업데이트 (0번 영상일 때 왼쪽 화살표 숨김)
+    function updateArrowVisibility() {
+      if (!prevBtn) return;
+      if (currentProjectIdx === 0) {
+        prevBtn.classList.add('disabled');
+      } else {
+        prevBtn.classList.remove('disabled');
+      }
+    }
+
+    // 프로젝트 재생 및 캡션/리스트 동기화
+    const projectToolsWrap = document.getElementById('projectToolsWrap');
+
+    function playProject(index) {
+      if (index < 0 || index >= portfolioData.length) return;
+      if (!portfolioData[index].video) {
+        alert('등록된 영상 파일이 없습니다.');
+        return;
+      }
+
+      closeFullViewer();
+      currentProjectIdx = index;
+      const project = portfolioData[currentProjectIdx];
+
+      // 1. 비디오 소스 교체 및 재생
+      if (showcaseVideo) {
+        showcaseVideo.src = encodeURI(project.video);
+        showcaseVideo.load();
+        showcaseVideo.play().catch(() => {});
+      }
+
+      // 2. 타이틀 캡션 독립 변경
+      if (showcaseCaption) {
+        showcaseCaption.innerHTML = `
+          <strong class="caption-title">${project.captionTitle || project.title}</strong>
+          <span class="caption-desc">${project.captionDesc || ''}</span>
+        `;
+      }
+      if (projectToolsWrap) {
+        projectToolsWrap.innerHTML = '';
+        if (project.tools && project.tools.length > 0) {
+          project.tools.forEach(tool => {
+            const span = document.createElement('span');
+            span.className = 'tool-tag';
+
+            // 등록된 로고 이미지가 있으면 img 태그 생성
+            if (toolIcons[tool]) {
+              const img = document.createElement('img');
+              img.src = toolIcons[tool];
+              img.alt = tool;
+              img.className = 'tool-icon';
+              span.appendChild(img);
+            }
+
+            // 툴 텍스트 노드 추가
+            const text = document.createTextNode(tool);
+            span.appendChild(text);
+
+            projectToolsWrap.appendChild(span);
+          });
+        }
+      }
+
+      // 3. 리스트 활성화 상태 갱신
+      projectItems.forEach((item, idx) => {
+        if (idx === currentProjectIdx) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+
+
+      // 4. 화살표 표시 상태 즉시 업데이트
+      updateArrowVisibility();
+    }
+
+    // 왼쪽 화살표 (<) 클릭
+    if (prevBtn) {
+      prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (currentProjectIdx <= 0) return;
+
+        let prevIdx = currentProjectIdx - 1;
+        while (prevIdx >= 0 && !portfolioData[prevIdx].video) prevIdx--;
+        
+        if (prevIdx >= 0) {
+          playProject(prevIdx);
+        }
+      });
+    }
+
+    // 오른쪽 화살표 (>) 클릭
+    if (nextBtn) {
+      nextBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        
+        let nextIdx = currentProjectIdx + 1;
+        while (nextIdx < portfolioData.length && !portfolioData[nextIdx].video) {
+          nextIdx++;
+        }
+
+        if (nextIdx < portfolioData.length) {
+          playProject(nextIdx);
+        }
+      });
+    }
+
+    // 좌측 리스트 클릭 이벤트
+    projectItems.forEach((item, idx) => {
+      item.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-storyboard')) return;
+        playProject(idx);
+      });
+    });
+
+    // 1페이지 무한 슬라이더 클릭 -> 2페이지 해당 영상으로 이동 & 즉시 재생
+    document.querySelectorAll('.slider-item').forEach((item, idx) => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const projectIdx = idx % 2; // 에뛰드(0), 아이엠스타(1) 매핑
+        playProject(projectIdx);
+        moveToSection(1);
+      });
+    });
+
+    // 초기 화살표 상태 설정 (0번 에뛰드 영상이므로 왼쪽 숨김)
+    updateArrowVisibility();
+
+    /* ==================================================
+       5. 전체화면 뷰어 (메인 비디오 확대 & 스토리보드 PDF)
+       ================================================== */
+    if (mainViewTrigger && fullViewer && viewerBox) {
+      mainViewTrigger.addEventListener('click', () => {
+        const currentSrc = showcaseVideo.currentSrc || showcaseVideo.src || showcaseVideo.querySelector('source')?.src;
+        if (!currentSrc) return;
+
+        viewerBox.innerHTML = `
+          <video id="popupVideoPlayer" src="${currentSrc}" controls autoplay playsinline style="max-width: 100%; max-height: 100%; border-radius: 12px;"></video>
+        `;
+        
+        if (showcaseVideo) showcaseVideo.pause();
+        if (bgMusic) bgMusic.pause(); // 전체화면 팝업이 뜨면 BGM 일시정지
+
+        fullViewer.style.display = 'flex';
+      });
+    }
+
+    // 스토리보드 버튼 클릭 (PDF 또는 이미지)
+    document.querySelectorAll('.btn-storyboard').forEach((btn, idx) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+
+        const file = portfolioData[idx]?.storyboard || btn.getAttribute('data-storyboard');
+        if (!file) return alert('등록된 스토리보드 파일이 없습니다.');
+
+        const safeUrl = encodeURI(file);
+        const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(file);
+
+        if (isImg) {
+          viewerBox.innerHTML = `
+            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: auto;">
+              <img src="${safeUrl}" alt="스토리보드" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px;" />
+            </div>
+          `;
+        } else {
+          viewerBox.innerHTML = `
+            <object data="${safeUrl}" type="application/pdf" width="100%" height="100%">
+              <embed src="${safeUrl}" type="application/pdf" width="100%" height="100%" />
+              <div style="color: #fff; text-align: center; padding: 20px;">
+                <p style="margin-bottom: 12px;">브라우저 미리보기가 지원되지 않습니다.</p>
+                <a href="${safeUrl}" target="_blank" style="color: #4da3ff; text-decoration: underline;">새 창에서 열기</a>
+              </div>
+            </object>
+          `;
+        }
+
+        if (showcaseVideo) showcaseVideo.pause();
+        if (bgMusic) bgMusic.pause();
+        fullViewer.style.display = 'flex';
+      });
+    });
+
+    // 공용 팝업 닫기 함수
+    function closeFullViewer() {
+      if (!fullViewer) return;
+      fullViewer.style.display = 'none';
+      if (viewerBox) viewerBox.innerHTML = '';
+
+      // 2페이지에 머물러 있다면 쇼케이스 영상 재개, 다른 페이지면 BGM 재개
+      if (currentIndex === 1 && showcaseVideo) {
+        showcaseVideo.play().catch(() => {});
+      } else {
+        syncBgmPlayback();
+      }
+    }
+
+    if (closeViewerBtn) {
+      closeViewerBtn.addEventListener('click', closeFullViewer);
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeFullViewer();
+      }
+    });
+  </script>
+</body>
+</html>
